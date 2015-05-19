@@ -87,12 +87,12 @@ def compute_edge_plane_intersection(mesh, e, plane):
     d1 = point_to_plane_dist(mesh.verts[e[0]], plane)
     d2 = point_to_plane_dist(mesh.verts[e[1]], plane)
 
-    #print e, d1, d2, d1*d2
-
-    if np.fabs(d1) < 1e-5:
+    # This is == and not < 1e-5 by design. Using < epsilon introduces
+    # some bugs
+    if np.fabs(d1) == 0:
         # point on plane
         return (INTERSECT_VERTEX, mesh.verts[e[0]], e[0])
-    elif np.fabs(d2) < 1e-5:
+    elif np.fabs(d2) == 0:
         # point on plane
         return (INTERSECT_VERTEX, mesh.verts[e[1]], e[1])
     elif d1 * d2 < 0:
@@ -246,6 +246,14 @@ if __name__ == '__main__':
                             line_width=3.0, color=color)
 
 
+    ##
+    # This will align the plane with some edges, so this is a good test
+    # for vertices intersection handling
+    plane_orig = (1.28380001, -0.1251, 0)
+    plane_norm = (1, 0, 0)
+
+    plane = Plane(plane_orig, plane_norm)
+    show(plane)
     ##
     # This will align the plane with some edges, so this is a good test
     # for vertices intersection handling
