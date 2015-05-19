@@ -1,3 +1,4 @@
+===============================================
 Python code to compute cross-section of 3D mesh
 ===============================================
 
@@ -9,7 +10,8 @@ results from cutting the mesh with the plane.
 
 Requires python and numpy. Mayavi is used for visualisation.
 
-::
+Run with ::
+
     python cross_section.py
 
 
