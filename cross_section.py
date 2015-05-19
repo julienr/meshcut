@@ -1,5 +1,4 @@
 ##
-import pylab as pl
 import mayavi.mlab as mlab
 import numpy as np
 import numpy.linalg as la
@@ -8,6 +7,8 @@ import itertools
 import utils
 import ply
 ##
+
+
 def make_edge(v1, v2):
     """
     We store edges as tuple where the vertex indices are sorted (so
@@ -26,11 +27,11 @@ class TriangleMesh(object):
         self.verts = verts
         # For each edge, contains the list of triangles it belongs to
         # If the mesh is closed, each edge belongs to 2 triangles
-        self.edges_to_tris = collections.defaultdict(lambda : [])
+        self.edges_to_tris = collections.defaultdict(lambda: [])
         # For each triangle, contains the edges it contains
         self.tris_to_edges = {}
         # For each vertex, the list of triangles it belongs to
-        self.verts_to_tris = collections.defaultdict(lambda : [])
+        self.verts_to_tris = collections.defaultdict(lambda: [])
 
         self.tris = faces
 
@@ -204,6 +205,7 @@ if __name__ == '__main__':
 
     mesh = TriangleMesh(verts, faces)
     ##
+
     def show(plane):
         P = cross_section(mesh, plane)
         colors = [
@@ -214,14 +216,14 @@ if __name__ == '__main__':
         print len(P)
 
         if True:
-            utils.trimesh3d(mesh.verts, mesh.tris, color=(1,1,1))
-            utils.show_plane(plane.orig, plane.n, scale=1, color=(1,0,0),
+            utils.trimesh3d(mesh.verts, mesh.tris, color=(1, 1, 1))
+            utils.show_plane(plane.orig, plane.n, scale=1, color=(1, 0, 0),
                              opacity=0.5)
 
             for p, color in zip(P, itertools.cycle(colors)):
                 p = np.array(p)
-                #points3d(np.array(p), point_size=2, color=color)
-                mlab.plot3d(p[:,0], p[:,1], p[:,2], tube_radius=None,
+                # points3d(np.array(p), point_size=2, color=color)
+                mlab.plot3d(p[:, 0], p[:, 1], p[:, 2], tube_radius=None,
                             line_width=3.0, color=color)
 
     ##
