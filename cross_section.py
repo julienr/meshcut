@@ -76,6 +76,13 @@ INTERSECT_VERTEX = 1
 def compute_edge_plane_intersection(mesh, e, plane):
     """
     Compute the intersection between and edge and a plane
+
+    If the plane cuts the edge in two parts, returns
+        (INTERSECT_EDGE, <intersection point>, <edge>)
+
+    If the plane intersects with a vertex, returns
+        (INTERSECT_VERTEX, <intersection point>, <vertex index>)
+
     """
     d1 = point_to_plane_dist(mesh.verts[e[0]], plane)
     d2 = point_to_plane_dist(mesh.verts[e[1]], plane)
