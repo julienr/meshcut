@@ -82,12 +82,20 @@ def compute_edge_plane_intersection(mesh, e, plane):
 
     If the plane intersects with a vertex, returns
         (INTERSECT_VERTEX, <intersection point>, <vertex index>)
-
     """
+
     d1 = point_to_plane_dist(mesh.verts[e[0]], plane)
     d2 = point_to_plane_dist(mesh.verts[e[1]], plane)
 
-    if d1 * d2 < 0:
+    #print e, d1, d2, d1*d2
+
+    if np.fabs(d1) < 1e-5:
+        # point on plane
+        return (INTERSECT_VERTEX, mesh.verts[e[0]], e[0])
+    elif np.fabs(d2) < 1e-5:
+        # point on plane
+        return (INTERSECT_VERTEX, mesh.verts[e[1]], e[1])
+    elif d1 * d2 < 0:
         # intersection factor (between 0 and 1)
         # here is a nice drawing :
         # https://ravehgonen.files.wordpress.com/2013/02/slide8.png
@@ -96,12 +104,6 @@ def compute_edge_plane_intersection(mesh, e, plane):
         ip = mesh.verts[e[0]] + vdir * s
 
         return (INTERSECT_EDGE, ip, e)
-    elif np.fabs(d1) < 1e-5:
-        # point on plane
-        return (INTERSECT_VERTEX, mesh.verts[e[0]], e[0])
-    elif np.fabs(d2) < 1e-5:
-        # point on plane
-        return (INTERSECT_VERTEX, mesh.verts[e[1]], e[1])
     else:
         return None
 
@@ -124,7 +126,7 @@ def cross_section_from(mesh, tid, plane):
     # function but can be useful for callers
     visited_tris = set([tid])
 
-    # Take a pen an draw a plane cutting some triangles
+    # Take a pen and draw a plane cutting some triangles
     #
     # To create the cutting polyline, we explore the edges that are cut by
     # the plane. At any given point in time, the next point in our line can
@@ -143,7 +145,6 @@ def cross_section_from(mesh, tid, plane):
     # To avoid going back on our steps, we maintain a set of explored edges
     #
     # We start by visiting the edges in the 'initial' triangle (tid)
-
     p = []
     edges_to_visit = set(mesh.edges_for_triangle(tid))
     visited_edges = set()
@@ -152,11 +153,16 @@ def cross_section_from(mesh, tid, plane):
         e = edges_to_visit.pop()
         visited_edges.add(e)
 
-        intersection = compute_edge_plane_intersection(mesh, e, plane)
+        intersection = compute_edge_plane_intersection(
+            mesh, e, plane,
+        )
         if intersection is None:
             continue
+
         elif intersection[0] == INTERSECT_EDGE:
             p.append(intersection[1])
+
+            visited_edges.add(e)
 
             next_tids = mesh.triangles_for_edge(e)
 
@@ -165,19 +171,23 @@ def cross_section_from(mesh, tid, plane):
 
             next_tids = mesh.triangles_for_vert(intersection[2])
 
-        # We will not find any more intersections in current edges
-        visited_edges.update(edges_to_visit)
-
         # Update the list of edges to visit from the triangles in next_tids,
         # discarding already visited edges
-        edges_to_visit = []
+        edges_to_visit = set()
         for tid in next_tids:
             visited_tris.add(tid)
             for new_edge in mesh.edges_for_triangle(tid):
                 if new_edge not in visited_edges:
-                    edges_to_visit.append(new_edge)
+                    edges_to_visit.add(new_edge)
+
     return np.array(p), visited_tris
 
+
+def triangle_intersect_plane(mesh, tid, plane):
+    dists = [point_to_plane_dist(mesh.verts[vid], plane)
+             for vid in mesh.tris[tid]]
+    side = np.sign(dists)
+    return not (side[0] == side[1] == side[2])
 
 def cross_section(mesh, plane):
     """
@@ -196,13 +206,15 @@ def cross_section(mesh, plane):
 
     while len(T) > 0:
         tid = T.pop()
+        if not triangle_intersect_plane(mesh, tid, plane):
+            continue
+
         p, visited_tris = cross_section_from(mesh, tid, plane)
         if len(p) > 0:
             P.append(p)
         T.difference_update(visited_tris)
 
     return P
-
 
 ##
 if __name__ == '__main__':
@@ -220,7 +232,7 @@ if __name__ == '__main__':
             (1, 0, 1),
             (0, 0, 1)
         ]
-        print len(P)
+        print "num contours : ", len(P)
 
         if True:
             utils.trimesh3d(mesh.verts, mesh.tris, color=(1, 1, 1))
@@ -232,6 +244,16 @@ if __name__ == '__main__':
                 # points3d(np.array(p), point_size=2, color=color)
                 mlab.plot3d(p[:, 0], p[:, 1], p[:, 2], tube_radius=None,
                             line_width=3.0, color=color)
+
+
+    ##
+    # This will align the plane with some edges, so this is a good test
+    # for vertices intersection handling
+    plane_orig = (0.93760002, -0.12909999, 0)
+    plane_norm = (1, 0, 0)
+
+    plane = Plane(plane_orig, plane_norm)
+    show(plane)
 
     ##
     plane_orig = (1, 0, 0)
