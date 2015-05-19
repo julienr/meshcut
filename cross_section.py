@@ -33,10 +33,10 @@ class TriangleMesh(object):
         # For each vertex, the list of triangles it belongs to
         self.verts_to_tris = collections.defaultdict(lambda: [])
 
-        self.tris = faces
+        self.tris = tris
 
         # Fill data structures
-        for tid, f in enumerate(faces):
+        for tid, f in enumerate(tris):
             tri_edges = []
             for i in xrange(3):
                 v1 = f[i]
