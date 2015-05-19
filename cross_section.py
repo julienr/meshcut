@@ -163,7 +163,7 @@ def cross_section_from(mesh, tid, plane):
         # Update the list of edges to visit from the triangles in next_tids,
         # discarding already visited edges
         edges_to_visit = []
-        for tid in mesh.triangles_for_edge(e):
+        for tid in next_tids:
             visited_tris.add(tid)
             for new_edge in mesh.edges_for_triangle(tid):
                 if new_edge not in visited_edges:
