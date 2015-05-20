@@ -47,12 +47,17 @@ class TriangleMesh(object):
                 self.verts_to_tris[f[i]].append(tid)
             self.tris_to_edges[tid] = tri_edges
 
+        # Sanity check : max 2 faces per edge
+        for e, tris in self.edges_to_tris.items():
+            assert len(tris) <= 2
+
     def edges_for_triangle(self, tidx):
         """Returns the edges forming triangle with given index"""
         return self.tris_to_edges[tidx]
 
     def triangles_for_edge(self, edge):
         return self.edges_to_tris[edge]
+
 
     def triangles_for_vert(self, vidx):
         """Returns the triangles `vidx` belongs to"""
@@ -146,7 +151,7 @@ def cross_section_from(mesh, tid, plane):
     #
     # We start by visiting the edges in the 'initial' triangle (tid)
     p = []
-    edges_to_visit = set(mesh.edges_for_triangle(tid))
+    edges_to_visit = list(mesh.edges_for_triangle(tid))
     visited_edges = set()
 
     while len(edges_to_visit) > 0:
@@ -158,27 +163,48 @@ def cross_section_from(mesh, tid, plane):
         )
         if intersection is None:
             continue
-
         elif intersection[0] == INTERSECT_EDGE:
             p.append(intersection[1])
-
             visited_edges.add(e)
-
             next_tids = mesh.triangles_for_edge(e)
-
         elif intersection[0] == INTERSECT_VERTEX:
             p.append(intersection[1])
-
             next_tids = mesh.triangles_for_vert(intersection[2])
 
         # Update the list of edges to visit from the triangles in next_tids,
-        # discarding already visited edges
-        edges_to_visit = set()
+        # discarding current set
+        edges_to_visit = []
         for tid in next_tids:
             visited_tris.add(tid)
             for new_edge in mesh.edges_for_triangle(tid):
                 if new_edge not in visited_edges:
-                    edges_to_visit.add(new_edge)
+                    edges_to_visit.append(new_edge)
+
+        # If we get multiple edges to visit (e.g. after a vertex intersection),
+        # the order will be important. It can happen that we get two edges
+        # to visit, one in "front" of us (wrt the polyline direction) and
+        # one "behind". This can be the case due to numerical stability
+        # issues. For example if you draw a line going through a vertex
+        # with many triangles, it is likely that some "behind" edges could
+        # be intersected too.
+        # On the other hand, it *CAN* happen that we have to go "backward",
+        # if we have a very sharp angle between two triangles, so we can't
+        # automatically discard either.
+        # In this case, we want to visit the ones that have the smallest
+        # angle with our current direction first
+        if len(p) > 1:  # no line direction yet at first iteration
+            linedir = p[-1] - p[-2]
+            def angle_to_linedir(e):
+                inter = compute_edge_plane_intersection(mesh, e, plane)
+                if inter is None:
+                    return -1
+                else:
+                    return np.dot(inter[1] - p[-1], linedir)
+            edges_to_visit = sorted(
+                edges_to_visit,
+                key=angle_to_linedir,
+                reverse=True
+            )
 
     return np.array(p), visited_tris
 
@@ -249,7 +275,7 @@ if __name__ == '__main__':
     ##
     # This will align the plane with some edges, so this is a good test
     # for vertices intersection handling
-    plane_orig = (1.28380001, -0.1251, 0)
+    plane_orig = (1.28380000591278076172, -0.12510000169277191162, 0)
     plane_norm = (1, 0, 0)
 
     plane = Plane(plane_orig, plane_norm)
