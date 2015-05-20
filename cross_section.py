@@ -94,10 +94,10 @@ def compute_edge_plane_intersection(mesh, e, plane):
 
     # This is == and not < 1e-5 by design. Using < epsilon introduces
     # some bugs
-    if np.fabs(d1) < 1e-5:
+    if np.fabs(d1) == 0:
         # point on plane
         return (INTERSECT_VERTEX, mesh.verts[e[0]], e[0])
-    elif np.fabs(d2) < 1e-5:
+    elif np.fabs(d2) == 0:
         # point on plane
         return (INTERSECT_VERTEX, mesh.verts[e[1]], e[1])
     elif d1 * d2 < 0:
@@ -236,7 +236,8 @@ if __name__ == '__main__':
         print "num contours : ", len(P), ' expected : ', expected_n_contours
 
         if True:
-            utils.trimesh3d(mesh.verts, mesh.tris, color=(1, 1, 1))
+            utils.trimesh3d(mesh.verts, mesh.tris, color=(1, 1, 1),
+                            opacity=0.5)
             utils.show_plane(plane.orig, plane.n, scale=1, color=(1, 0, 0),
                              opacity=0.5)
 
