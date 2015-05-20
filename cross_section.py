@@ -94,10 +94,10 @@ def compute_edge_plane_intersection(mesh, e, plane):
 
     # This is == and not < 1e-5 by design. Using < epsilon introduces
     # some bugs
-    if np.fabs(d1) == 0:
+    if np.fabs(d1) < 1e-5:
         # point on plane
         return (INTERSECT_VERTEX, mesh.verts[e[0]], e[0])
-    elif np.fabs(d2) == 0:
+    elif np.fabs(d2) < 1e-5:
         # point on plane
         return (INTERSECT_VERTEX, mesh.verts[e[1]], e[1])
     elif d1 * d2 < 0:
@@ -173,38 +173,13 @@ def cross_section_from(mesh, tid, plane):
 
         # Update the list of edges to visit from the triangles in next_tids,
         # discarding current set
-        edges_to_visit = []
+        #edges_to_visit = []
         for tid in next_tids:
-            visited_tris.add(tid)
-            for new_edge in mesh.edges_for_triangle(tid):
-                if new_edge not in visited_edges:
-                    edges_to_visit.append(new_edge)
-
-        # If we get multiple edges to visit (e.g. after a vertex intersection),
-        # the order will be important. It can happen that we get two edges
-        # to visit, one in "front" of us (wrt the polyline direction) and
-        # one "behind". This can be the case due to numerical stability
-        # issues. For example if you draw a line going through a vertex
-        # with many triangles, it is likely that some "behind" edges could
-        # be intersected too.
-        # On the other hand, it *CAN* happen that we have to go "backward",
-        # if we have a very sharp angle between two triangles, so we can't
-        # automatically discard either.
-        # In this case, we want to visit the ones that have the smallest
-        # angle with our current direction first
-        if len(p) > 1:  # no line direction yet at first iteration
-            linedir = p[-1] - p[-2]
-            def angle_to_linedir(e):
-                inter = compute_edge_plane_intersection(mesh, e, plane)
-                if inter is None:
-                    return -1
-                else:
-                    return np.dot(inter[1] - p[-1], linedir)
-            edges_to_visit = sorted(
-                edges_to_visit,
-                key=angle_to_linedir,
-                reverse=True
-            )
+            if tid not in visited_tris:
+                visited_tris.add(tid)
+                for new_edge in mesh.edges_for_triangle(tid):
+                    if new_edge not in visited_edges:
+                        edges_to_visit.append(new_edge)
 
     return np.array(p), visited_tris
 
@@ -251,14 +226,14 @@ if __name__ == '__main__':
     mesh = TriangleMesh(verts, faces)
     ##
 
-    def show(plane):
+    def show(plane, expected_n_contours):
         P = cross_section(mesh, plane)
         colors = [
             (0, 1, 1),
             (1, 0, 1),
             (0, 0, 1)
         ]
-        print "num contours : ", len(P)
+        print "num contours : ", len(P), ' expected : ', expected_n_contours
 
         if True:
             utils.trimesh3d(mesh.verts, mesh.tris, color=(1, 1, 1))
@@ -279,7 +254,7 @@ if __name__ == '__main__':
     plane_norm = (1, 0, 0)
 
     plane = Plane(plane_orig, plane_norm)
-    show(plane)
+    show(plane, expected_n_contours=3)
     ##
     # This will align the plane with some edges, so this is a good test
     # for vertices intersection handling
@@ -287,20 +262,20 @@ if __name__ == '__main__':
     plane_norm = (1, 0, 0)
 
     plane = Plane(plane_orig, plane_norm)
-    show(plane)
+    show(plane, expected_n_contours=1)
 
     ##
     plane_orig = (1, 0, 0)
     plane_norm = (1, 0, 0)
 
     plane = Plane(plane_orig, plane_norm)
-    show(plane)
+    show(plane, expected_n_contours=3)
     ##
     plane_orig = (0.7, 0, 0)
     plane_norm = (0.2, 0.5, 0.3)
 
     plane = Plane(plane_orig, plane_norm)
-    show(plane)
+    show(plane, expected_n_contours=2)
     ##
     mlab.show()
     ##
