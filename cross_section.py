@@ -74,148 +74,137 @@ def point_to_plane_dist(p, plane):
     return np.dot((p - plane.orig), plane.n)
 
 
-INTERSECT_EDGE = 0
-INTERSECT_VERTEX = 1
-
-
-def compute_edge_plane_intersection(mesh, e, plane):
-    """
-    Compute the intersection between and edge and a plane
-
-    If the plane cuts the edge in two parts, returns
-        (INTERSECT_EDGE, <intersection point>, <edge>)
-
-    If the plane intersects with a vertex, returns
-        (INTERSECT_VERTEX, <intersection point>, <vertex index>)
-    """
-
-    d1 = point_to_plane_dist(mesh.verts[e[0]], plane)
-    d2 = point_to_plane_dist(mesh.verts[e[1]], plane)
-
-    # This is == and not < 1e-5 by design. Using < epsilon introduces
-    # some bugs
-    if np.fabs(d1) == 0:
-        # point on plane
-        return (INTERSECT_VERTEX, mesh.verts[e[0]], e[0])
-    elif np.fabs(d2) == 0:
-        # point on plane
-        return (INTERSECT_VERTEX, mesh.verts[e[1]], e[1])
-    elif d1 * d2 < 0:
-        # intersection factor (between 0 and 1)
-        # here is a nice drawing :
-        # https://ravehgonen.files.wordpress.com/2013/02/slide8.png
-        s = d1 / (d1 - d2)
-        vdir = mesh.verts[e[1]] - mesh.verts[e[0]]
-        ip = mesh.verts[e[0]] + vdir * s
-
-        return (INTERSECT_EDGE, ip, e)
-    else:
-        return None
-
-
-def cross_section_from(mesh, tid, plane):
-    """
-    Create a cross-section of the mesh starting at the given triangle
-
-    This returns p = [] if the plane does not intersect the given triangle
-
-    Args:
-        mesh: A TriangleMesh instance
-        tid: the triangle index at which to start the cross-section polyline
-        plane: the cutting plane
-    Returns:
-        p: a list of consecutive points forming a polyline
-        visited_tris: the set of visited triangles
-    """
-    # We keep track of visited triangles. This is not required by this
-    # function but can be useful for callers
-    visited_tris = set([tid])
-
-    # Take a pen and draw a plane cutting some triangles
-    #
-    # To create the cutting polyline, we explore the edges that are cut by
-    # the plane. At any given point in time, the next point in our line can
-    # to be found in a "to visit" edges set. Amongst the edges to visit,
-    # we will exactly one intersection and from this intersection, we'll
-    # create a new "to visit" set and continue.
-    #
-    # The set of edges "to visit" is determined by the type of intersection :
-    # - If we found that our plane intersects an edge (cuts it), the "to visit"
-    #   set is simply the list of edges of the neighboring triangle to the
-    #   cut edge.
-    # - If our plane intersects a vertex, the "to visit" set is all the
-    #   edges of the triangles that contain the intersected vertex (again,
-    #   draw it)
-    #
-    # To avoid going back on our steps, we maintain a set of explored edges
-    #
-    # We start by visiting the edges in the 'initial' triangle (tid)
-    p = []
-    edges_to_visit = list(mesh.edges_for_triangle(tid))
-    visited_edges = set()
-
-    while len(edges_to_visit) > 0:
-        e = edges_to_visit.pop()
-        visited_edges.add(e)
-
-        intersection = compute_edge_plane_intersection(
-            mesh, e, plane,
-        )
-        if intersection is None:
-            continue
-        elif intersection[0] == INTERSECT_EDGE:
-            p.append(intersection[1])
-            visited_edges.add(e)
-            next_tids = mesh.triangles_for_edge(e)
-        elif intersection[0] == INTERSECT_VERTEX:
-            p.append(intersection[1])
-            next_tids = mesh.triangles_for_vert(intersection[2])
-
-        # Update the list of edges to visit from the triangles in next_tids,
-        # discarding current set
-        #edges_to_visit = []
-        for tid in next_tids:
-            if tid not in visited_tris:
-                visited_tris.add(tid)
-                for new_edge in mesh.edges_for_triangle(tid):
-                    if new_edge not in visited_edges:
-                        edges_to_visit.append(new_edge)
-
-    return np.array(p), visited_tris
-
-
 def triangle_intersect_plane(mesh, tid, plane):
     dists = [point_to_plane_dist(mesh.verts[vid], plane)
              for vid in mesh.tris[tid]]
     side = np.sign(dists)
     return not (side[0] == side[1] == side[2])
 
-def cross_section(mesh, plane):
-    """
-    Compute a cross-section of the mesh using the provided cut-plane.
 
-    Returns:
-        P: a list of polylines (if the mesh is non-convex, the cross-section
-           can consist of multiple disjoints polylines)
-    """
+INTERSECT_EDGE = 0
+INTERSECT_VERTEX = 1
 
-    # the set of all triangles
+
+def compute_triangle_plane_intersections(mesh, tid, plane):
+    """
+    Compute the intersection between a triangle and a plane
+
+    Returns a list of intersections in the form
+        (INTERSECT_EDGE, <intersection point>, <edge>) for edges intersection
+        (INTERSECT_VERTEX, <intersection point>, <vertex index) for vertices
+
+    This return between 0 and 2 intersections :
+    - 0 : the plane does not intersect the plane
+    - 1 : one of the triangle's vertices lies on the plane (so it just
+          "touches" the plane without really intersecting)
+    - 2 : the plane slice the triangle in two parts (either vertex-edge,
+          vertex-vertex or edge-edge)
+    """
+    # TODO: Use a distance cache
+    dists = {vid:point_to_plane_dist(mesh.verts[vid], plane)
+             for vid in mesh.tris[tid]}
+
+    # Iterate through the edges, cutting the ones that intersect
+    intersections = []
+    for e in mesh.edges_for_triangle(tid):
+        v1 = mesh.verts[e[0]]
+        d1 = dists[e[0]]
+        v2 = mesh.verts[e[1]]
+        d2 = dists[e[1]]
+
+        if d1 * d2 < 0:
+            # intersection factor (between 0 and 1)
+            # here is a nice drawing :
+            # https://ravehgonen.files.wordpress.com/2013/02/slide8.png
+            s = d1 / (d1 - d2)
+            vdir = v2 - v1
+            ipos = v1 + vdir * s
+            intersections.append((INTERSECT_EDGE, ipos, e))
+        elif np.fabs(d1) < 1e-10:
+            # point on plane
+            intersections.append((INTERSECT_VERTEX, v1, e[0]))
+
+    assert len(intersections) <= 2
+    return intersections
+
+
+def get_next_triangle(mesh, from_tid, plane, intersection):
+    """
+    Returns the next triangle to visit given the intersection and
+    the triangle we're coming from
+    """
+    if intersection[0] == INTERSECT_EDGE:
+        tris = mesh.triangles_for_edge(intersection[2])
+        for tid in tris:
+            if tid != from_tid:
+                return tid
+        return None
+    elif intersections[0] == INTERSECT_VERTEX:
+        tris = mesh.triangles_for_vert(intersection[2])
+        for tid in tris:
+            if tid != from_tid and triangle_intersect_plane(mesh, tid, plane):
+                return tid
+        return None
+
+
+def cross_section(mesh, plane, dist_tol=1e-8):
+    """
+    Args:
+        dist_tol:
+    """
+    # Set of all triangles
     T = set(range(len(mesh.tris)))
-
-    # the list of all cross-section polylines
+    # List of all cross-section polylines
     P = []
 
     while len(T) > 0:
         tid = T.pop()
-        if not triangle_intersect_plane(mesh, tid, plane):
-            continue
+        if triangle_intersect_plane(mesh, tid, plane):
+            # We found a starting triangle for a new polyline
+            p = []
+            intersections = compute_triangle_plane_intersections(
+                mesh, tid, plane)
+            assert len(intersections) == 2
 
-        p, visited_tris = cross_section_from(mesh, tid, plane)
-        if len(p) > 0:
+            # We can start in either direction (intersections[0] or [1]), this
+            # is arbitrary for the first triangle
+            p.append(intersections[0][1])
+            tid = get_next_triangle(mesh, tid, plane, intersections[0])
+
+            # Loop until we have explored all the triangles for the current
+            # polyline
+            while tid in T:
+                T.remove(tid)
+                intersections = compute_triangle_plane_intersections(
+                        mesh, tid, plane)
+                assert len(intersections) == 2
+                # Of the two returned intersections, one should have the
+                # intersection point equal to p[-1]
+                if la.norm(intersections[0][1] - p[-1]) < 1e-8:
+                    intersect = intersections[1]
+                else:
+                    assert la.norm(intersections[1][1] - p[-1]) < 1e-8
+                    intersect = intersections[0]
+
+                p.append(intersect[1])
+                tid = get_next_triangle(mesh, tid, plane, intersect)
+
+                if tid is None:
+                    print 'Degenerate case (probably non-closed mesh)'
+                    break
+
             P.append(p)
-        T.difference_update(visited_tris)
 
     return P
+
+if False:
+    # This will align the plane with some edges, so this is a good test
+    # for vertices intersection handling
+    plane_orig = (1.28380000591278076172, -0.12510000169277191162, 0)
+    plane_norm = (1, 0, 0)
+
+    plane = Plane(plane_orig, plane_norm)
+    show(plane, expected_n_contours=3)
 
 ##
 if __name__ == '__main__':
