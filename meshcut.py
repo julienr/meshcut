@@ -228,12 +228,26 @@ def cross_section_mesh(mesh, plane, dist_tol=1e-8):
                     print 'Degenerate case (probably non-closed mesh)'
                     break
 
-            P.append(p)
+            P.append(np.array(p))
 
     return P
 
 
 def cross_section(verts, tris, plane_orig, plane_normal, **kwargs):
+    """
+    Compute the planar cross section of a mesh. This returns a set of
+    polylines.
+
+    Args:
+        verts: Nx3 array of the vertices position
+        faces: Nx3 array of the faces, containing vertex indices
+        plane_orig: 3-vector indicating the plane origin
+        plane_normal: 3-vector indicating the plane normal
+
+    Returns:
+        A list of Nx3 arrays, each representing a disconnected portion
+        of the cross section as a polyline
+    """
     mesh = TriangleMesh(verts, tris)
     plane = Plane(plane_orig, plane_normal)
     return cross_section_mesh(mesh, plane, **kwargs)

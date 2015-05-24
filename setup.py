@@ -13,7 +13,7 @@ setup(
     long_description=read('README.rst'),
     author='Julien Rebetez',
     author_email='julien@fhtagn.net',
-    url='',
+    url='https://github.com/julienr/meshcut',
     keywords = ['mesh', 'slice', 'cross-section', '3D', 'triangular'],
     py_modules=['meshcut'],
 )
