@@ -200,7 +200,7 @@ def cross_section_mesh(mesh, plane, dist_tol=1e-8):
             # is arbitrary for the first triangle
             p.append(intersections[0][1])
             tid, intersections = get_next_triangle(mesh, tid, plane,
-                    intersections[0], dist_tol)
+                                                   intersections[0], dist_tol)
 
             # Loop until we have explored all the triangles for the current
             # polyline
@@ -222,7 +222,7 @@ def cross_section_mesh(mesh, plane, dist_tol=1e-8):
 
                 p.append(intersect[1])
                 tid, intersections = get_next_triangle(mesh, tid, plane,
-                        intersect, dist_tol)
+                                                       intersect, dist_tol)
 
                 if tid is None:
                     print 'Degenerate case (probably non-closed mesh)'

@@ -14,6 +14,7 @@ setup(
     author='Julien Rebetez',
     author_email='julien@fhtagn.net',
     url='https://github.com/julienr/meshcut',
+    download_url='https://github.com/julienr/meshcut/tarball/0.1'
     keywords = ['mesh', 'slice', 'cross-section', '3D', 'triangular'],
     py_modules=['meshcut'],
 )
