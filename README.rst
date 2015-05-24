@@ -1,21 +1,17 @@
-===============================================
-Python code to compute cross-section of 3D mesh
-===============================================
+========================================================
+meshcut - Python utilities to slice 3D triangular meshes
+========================================================
 
-Simple (and not thoroughly tested) implementation of a 3D mesh cross-section
-algorithm.
-
-Note that this works on some tests, but I'm not 100% confident the algorithm
-handles special cases (if an edge lies exactly on the plane) correctly.
+For now, this computes the planar cross-section of a 3D mesh.
 
 Given a 3D mesh and a cut plane, this computes a (set of) polyline(s) that
 results from cutting the mesh with the plane.
 
-Requires python and numpy. Mayavi is used for visualisation.
+Requires python and numpy. Mayavi is used for visualisation in the examples.
 
 Run with ::
 
-    python cross_section.py
+    python examples/cross_section.py
 
 
 .. image:: screenshot.png
