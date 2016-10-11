@@ -47,3 +47,12 @@ Given ::
 
 .. image:: screenshot.png
    :width: 50%
+
+
+Thanks
+======
+Thanks to @superzanti for the STL use case and the sphere model.
+
+Authors
+=======
+Julien Rebetez
