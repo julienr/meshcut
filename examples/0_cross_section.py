@@ -1,3 +1,7 @@
+"""
+Basic usage example on a ply mesh. Note that this require a closed, manifold
+input mesh.
+"""
 ##
 import os
 import numpy as np
@@ -48,7 +52,7 @@ if __name__ == '__main__':
 
             for p, color in zip(P, itertools.cycle(colors)):
                 p = np.array(p)
-                utils.points3d(np.array(p), point_size=3, color=(1,1,1))
+                #utils.points3d(np.array(p), point_size=3, color=(1,1,1))
                 mlab.plot3d(p[:, 0], p[:, 1], p[:, 2], tube_radius=None,
                             line_width=3.0, color=color)
         return P
