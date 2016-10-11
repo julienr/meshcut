@@ -1,3 +1,4 @@
 *.pyc
 meshcut.egg-info
 dist/meshcut-0.1.tar.gz
+.DS_Store
