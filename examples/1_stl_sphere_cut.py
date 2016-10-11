@@ -3,7 +3,9 @@ This demonstrates cutting on a .stl mesh, which requires some pre-processing
 because STL stores 3 vertices for each face (so vertices are duplicated).
 
 The merge_close_vertices is a naive implementation of this pre-processing
-that will probably take a long time on large meshes.
+that will probably take a long time on large meshes. libigl provides
+a remove_duplicates function that should be better :
+  https://github.com/libigl/libigl/blob/master/include/igl/remove_duplicates.h
 
 Thanks to @superzanti for providing the model
 """
