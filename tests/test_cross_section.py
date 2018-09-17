@@ -111,18 +111,18 @@ def test_plane_contain_edge():
     assert np.all(p[0][:, 1] == 0)
 
 
-def test_plane_contain_edge():
+def test_plane_triangles_common_edge_on_plane():
     """
     Test with a plane that contains the middle edge of triangles
     """
     # Flattened view
     # 1 is connected to 8 and 10
     #
-    #    2     5    8
-    #  /   \ /  \ /   \
-    #-1-----3----6----- (back to 1)
-    #  \   / \  / \   /
-    #    4     7    10
+    #     2     5    8
+    #   /   \ /  \ /   \
+    # -1-----3----6----- (back to 1)
+    #   \   / \  / \   /
+    #     4     7    10
     #
     # Top view
     #      1 - 3
@@ -180,4 +180,3 @@ def test_sphere():
     p = meshcut.cross_section_mesh(mesh, plane)
     assert len(p) == 1
     assert len(p[0]) > 10
-

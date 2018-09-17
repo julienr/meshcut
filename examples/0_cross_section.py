@@ -13,18 +13,6 @@ import ply
 import meshcut
 
 ##
-
-if False:
-    reload(meshcut)
-    # This will align the plane with some edges, so this is a good test
-    # for vertices intersection handling
-    plane_orig = (1.28380000591278076172, -0.12510000169277191162, 0)
-    plane_norm = (1, 0, 0)
-
-    plane = meshcut.Plane(plane_orig, plane_norm)
-    show(plane, expected_n_contours=3)
-
-##
 if __name__ == '__main__':
     ##
     example_dir = os.path.join(os.path.dirname(meshcut.__file__), 'examples')
@@ -52,7 +40,6 @@ if __name__ == '__main__':
 
             for p, color in zip(P, itertools.cycle(colors)):
                 p = np.array(p)
-                #utils.points3d(np.array(p), point_size=3, color=(1,1,1))
                 mlab.plot3d(p[:, 0], p[:, 1], p[:, 2], tube_radius=None,
                             line_width=3.0, color=color)
         return P

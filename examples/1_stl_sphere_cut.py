@@ -16,10 +16,11 @@ import numpy.linalg as la
 import mayavi.mlab as mlab
 import itertools
 import utils
-import ply
 
 import meshcut
 ##
+
+
 def load_stl(stl_fname):
     import stl
     m = stl.mesh.Mesh.from_file(stl_fname)
@@ -32,14 +33,16 @@ def load_stl(stl_fname):
     return verts, faces
 
 ##
+
+
 if __name__ == '__main__':
     ##
-    example_dir = os.path.join(os.path.dirname(meshcut.__file__), 'examples')
-    example_fname = os.path.join(example_dir, 'data', 'sphere.stl')
+    example_fname = os.path.join('data', 'sphere.stl')
     verts, faces = load_stl(example_fname)
 
     mesh = meshcut.TriangleMesh(verts, faces)
     ##
+
     def show(plane):
         P = meshcut.cross_section_mesh(mesh, plane)
         colors = [
@@ -57,7 +60,6 @@ if __name__ == '__main__':
 
             for p, color in zip(P, itertools.cycle(colors)):
                 p = np.array(p)
-                #utils.points3d(np.array(p), point_size=3, color=(1,1,1))
                 mlab.plot3d(p[:, 0], p[:, 1], p[:, 2], tube_radius=None,
                             line_width=3.0, color=color)
         return P
