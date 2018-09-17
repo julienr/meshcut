@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
         if True:
             utils.trimesh3d(mesh.verts, mesh.tris, color=(1, 1, 1),
-                            opacity=0.5)
+                            opacity=0.5, representation='wireframe')
             utils.show_plane(plane.orig, plane.n, scale=1, color=(1, 0, 0),
                              opacity=0.5)
 
@@ -63,7 +63,7 @@ if __name__ == '__main__':
         return P
 
     ##
-    plane_orig = (0, 0.5, 0)
+    plane_orig = (0, 0.75, 0)
     plane_norm = (0, 1, 0)
     plane = meshcut.Plane(plane_orig, plane_norm)
     P = show(plane)
