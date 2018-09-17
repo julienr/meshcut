@@ -15,6 +15,11 @@ setup(
     author_email='julien@fhtagn.net',
     url='https://github.com/julienr/meshcut',
     download_url='https://github.com/julienr/meshcut/tarball/0.1',
-    keywords = ['mesh', 'slice', 'cross-section', '3D', 'triangular'],
+    keywords=['mesh', 'slice', 'cross-section', '3D', 'triangular'],
+    install_requires=[
+        'numpy-stl',
+        'scipy',
+        'numpy',
+    ],
     py_modules=['meshcut'],
 )

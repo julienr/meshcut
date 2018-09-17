@@ -1,28 +1,27 @@
-"""Experimental stuff"""
+"""Experimental stuff. Run this in ipython from the 'examples' directory"""
 ##
-import pylab as pl
-import mayavi.mlab as mlab
 import numpy as np
-import numpy.linalg as la
-import collections
-import itertools
 import ply
+import mayavi.mlab as mlab  # noqa
 from utils import points3d, trimesh3d, show_plane
-%matplotlib qt
+# %matplotlib qt
 ##
-with open('mesh.ply') as f:
+with open('data/mesh.ply') as f:
     verts, faces, _ = ply.load_ply(f)
 
 ##
 # plane defined by origin and normal
-plane_orig = (1, 0, 0)
-plane_norm = (1, 0, 0)
+plane_orig = (1.0, 0.0, 0.0)
+plane_norm = (1.0, 0.0, 0.0)
 
-trimesh3d(verts, faces, color=(1,1,1))
-show_plane(plane_orig, plane_norm, scale=0.5, color=(1,0,0), opacity=0.5)
+trimesh3d(verts, faces, color=(1, 1, 1))
+show_plane(plane_orig, plane_norm, scale=0.5, color=(1, 0, 0), opacity=0.5)
 ##
+
+
 def point_to_plane_dist(p, plane_orig, plane_norm):
     return np.dot((p - plane_orig), plane_norm)
+
 
 def classify_faces(verts, faces, plane_orig, plane_norm):
     faces_pos = []
@@ -42,16 +41,19 @@ def classify_faces(verts, faces, plane_orig, plane_norm):
                 faces_pos.append(f)
     return faces_pos, faces_mid, faces_neg
 
+
 faces_pos, faces_mid, faces_neg = classify_faces(verts, faces, plane_orig,
                                                  plane_norm)
 
 if True:
-    trimesh3d(verts, faces_pos, color=(1,0,0))
-    trimesh3d(verts, faces_mid, color=(0,1,0))
-    trimesh3d(verts, faces_neg, color=(0,0,1))
-    show_plane(plane_orig, plane_norm, scale=0.5, color=(1,0,0), opacity=0.5)
+    trimesh3d(verts, faces_pos, color=(1, 0, 0))
+    trimesh3d(verts, faces_mid, color=(0, 1, 0))
+    trimesh3d(verts, faces_neg, color=(0, 0, 1))
+    show_plane(plane_orig, plane_norm, scale=0.5, color=(1, 0, 0), opacity=0.5)
 
 ##
+
+
 def slice_triangle_plane(verts, tri, plane_orig, plane_norm):
     """
     Args:
@@ -89,17 +91,17 @@ def slice_triangle_plane(verts, tri, plane_orig, plane_norm):
 
     return intersect_points
 
+
 inter_points = []
 for tri in faces:
     inter_points += slice_triangle_plane(verts, tri, plane_orig, plane_norm)
 inter_points = np.array(inter_points)
 
 if True:
-    trimesh3d(verts, faces_pos, color=(1,0,0))
-    trimesh3d(verts, faces_mid, color=(0,1,0))
-    trimesh3d(verts, faces_neg, color=(0,0,1))
-    show_plane(plane_orig, plane_norm, scale=0.5, color=(1,0,0), opacity=0.5)
+    trimesh3d(verts, faces_pos, color=(1, 0, 0))
+    trimesh3d(verts, faces_mid, color=(0, 1, 0))
+    trimesh3d(verts, faces_neg, color=(0, 0, 1))
+    show_plane(plane_orig, plane_norm, scale=0.5, color=(1, 0, 0), opacity=0.5)
 
-    points3d(inter_points, point_size=2, color=(1,1,1))
+    points3d(inter_points, point_size=2, color=(1, 1, 1))
 ##
-
