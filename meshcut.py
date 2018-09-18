@@ -294,7 +294,7 @@ def pdist_squareformed_numpy(a):
 
     Returns: dist
     """
-    verts = np.array(verts, dtype = np.float64)
+    a = np.array(a, dtype=np.float64)
     a_sumrows = np.einsum('ij,ij->i', a, a)
     dist = a_sumrows[:, None] + a_sumrows - 2 * np.dot(a, a.T)
     np.fill_diagonal(dist, 0)
