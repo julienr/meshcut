@@ -283,15 +283,18 @@ def cross_section(verts, tris, plane_orig, plane_normal, **kwargs):
     return cross_section_mesh(mesh, plane, **kwargs)
 
 
-def pdist_squareformed_numpy(self, a):
+def pdist_squareformed_numpy(a):
     """
     Compute spatial distance using pure numpy
     (similar to scipy.spatial.distance.cdist())
 
     Thanks to Divakar Roy (@droyed) at stackoverflow.com
 
+    Note this needs at least np.float64 precision!
+
     Returns: dist
     """
+    verts = np.array(verts, dtype = np.float64)
     a_sumrows = np.einsum('ij,ij->i', a, a)
     dist = a_sumrows[:, None] + a_sumrows - 2 * np.dot(a, a.T)
     np.fill_diagonal(dist, 0)
