@@ -287,10 +287,13 @@ def pdist_squareformed_numpy(self, a):
     """
     Compute spatial distance using pure numpy
     (similar to scipy.spatial.distance.cdist())
+
+    Thanks to Divakar Roy (@droyed) at stackoverflow.com
+
+    Returns: dist
     """
-    #Thanks to Divakar Roy (@droyed) https://stackoverflow.com/questions/52030458/vectorized-spatial-distance-in-python-using-n$
     a_sumrows = np.einsum('ij,ij->i', a, a)
-    dist = a_sumrows[:,None] + a_sumrows -2*np.dot(a, a.T)
+    dist = a_sumrows[:, None] + a_sumrows - 2 * np.dot(a, a.T)
     np.fill_diagonal(dist, 0)
     return dist
 
