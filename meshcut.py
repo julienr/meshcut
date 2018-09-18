@@ -4,10 +4,10 @@ Functions to slice a mesh. For now, computes planar cross-section
 import numpy as np
 import numpy.linalg as la
 try:
-	import scipy.spatial.distance as spdist
-	USE_SCIPY=True
+    import scipy.spatial.distance as spdist
+    USE_SCIPY = True
 except ImportError:
-	USE_SCIPY=False
+    USE_SCIPY = False
 import collections
 
 # ---- Geometry datastructures
@@ -282,15 +282,18 @@ def cross_section(verts, tris, plane_orig, plane_normal, **kwargs):
     plane = Plane(plane_orig, plane_normal)
     return cross_section_mesh(mesh, plane, **kwargs)
 
+
 def pdist_squareformed_numpy(self, a):
     """
-    Compute spatial distance using pure numpy (similar to scipy.spatial.distance.cdist())
+    Compute spatial distance using pure numpy
+    (similar to scipy.spatial.distance.cdist())
     """
     #Thanks to Divakar Roy (@droyed) https://stackoverflow.com/questions/52030458/vectorized-spatial-distance-in-python-using-n$
-    a_sumrows = np.einsum('ij,ij->i',a,a)
-    dist = a_sumrows[:,None] + a_sumrows -2*np.dot(a,a.T)
-    np.fill_diagonal(dist,0)
+    a_sumrows = np.einsum('ij,ij->i', a, a)
+    dist = a_sumrows[:,None] + a_sumrows -2*np.dot(a, a.T)
+    np.fill_diagonal(dist, 0)
     return dist
+
 
 def merge_close_vertices(verts, faces, close_epsilon=1e-5):
     """
