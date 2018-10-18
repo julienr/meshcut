@@ -42,7 +42,7 @@ class TriangleMesh(object):
         # Fill data structures
         for tid, f in enumerate(tris):
             tri_edges = []
-            for i in xrange(3):
+            for i in range(3):
                 v1 = f[i]
                 v2 = f[(i + 1) % 3]
                 e = make_edge(v1, v2)

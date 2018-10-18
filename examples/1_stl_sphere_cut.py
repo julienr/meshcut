@@ -50,7 +50,7 @@ if __name__ == '__main__':
             (1, 0, 1),
             (0, 0, 1)
         ]
-        print "num contours : ", len(P)
+        print("num contours : ", len(P))
 
         if True:
             utils.trimesh3d(mesh.verts, mesh.tris, color=(1, 1, 1),
