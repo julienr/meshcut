@@ -8,7 +8,7 @@ def read(fname):
 
 setup(
     name='meshcut',
-    version='0.2',
+    version='0.2.1',
     description='Utilities to slice 3D triangular meshes.',
     long_description=read('README.rst'),
     author='Julien Rebetez',
