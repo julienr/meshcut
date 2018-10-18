@@ -204,7 +204,9 @@ def get_next_triangle(mesh, T, plane, intersection, dist_tol):
 
 def _walk_polyline(tid, intersect, T, mesh, plane, dist_tol):
     """
-    Follow
+    Given an intersection, walk through the mesh triangles, computing
+    intersection with the cut plane for each visited triangle and adding
+    those intersection to a polyline.
     """
     T = set(T)
     p = []
