@@ -35,13 +35,13 @@ def load_ply(fileobj):
 
     # Verts
     verts = np.zeros((nverts, 3))
-    for i in xrange(nverts):
+    for i in range(nverts):
         vals = nextline().split()
         verts[i, :] = [float(v) for v in vals[:3]]
     # Faces
     faces = []
     faces_uv = []
-    for i in xrange(nfaces):
+    for i in range(nfaces):
         vals = nextline().split()
         assert int(vals[0]) == 3
         faces.append([int(v) for v in vals[1:4]])
@@ -68,7 +68,7 @@ def save_ply(filename, verts, faces):
         f.write('element face %d\n' % len(faces))
         f.write('property list uchar int vertex_indices\n')
         f.write('end_header\n')
-        for i in xrange(verts.shape[0]):
+        for i in range(verts.shape[0]):
             f.write('%f %f %f\n' % (verts[i, 0], verts[i, 1], verts[i, 2]))
-        for i in xrange(len(faces)):
+        for i in range(len(faces)):
             f.write('3 %d %d %d\n' % (faces[i][0], faces[i][1], faces[i][2]))

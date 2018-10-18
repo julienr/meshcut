@@ -72,7 +72,7 @@ def slice_triangle_plane(verts, tri, plane_orig, plane_norm):
 
     # Iterate through the edges, cutting the ones that intersect
     intersect_points = []
-    for fi in xrange(3):
+    for fi in range(3):
         v1 = verts[tri[fi]]
         d1 = dists[fi]
         v2 = verts[tri[(fi + 1) % 3]]
