@@ -16,7 +16,7 @@ Usage
 =====
 Run the examples with ::
 
-    python examples/cross_section.py
+    python3 examples/0_cross_section.py
 
 Given ::
 
