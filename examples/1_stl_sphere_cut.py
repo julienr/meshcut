@@ -61,14 +61,15 @@ if __name__ == '__main__':
             for p, color in zip(P, itertools.cycle(colors)):
                 p = np.array(p)
                 mlab.plot3d(p[:, 0], p[:, 1], p[:, 2], tube_radius=None,
-                            line_width=3.0, color=color)
+                            line_width=10.0, color=color)
         return P
 
     ##
     plane_orig = (0, 0.75, 0)
     plane_norm = (0, 1, 0)
     plane = meshcut.Plane(plane_orig, plane_norm)
-    P = show(plane)
+    show(plane)
+    mlab.show()
     ##
     # This will align the plane with some edges, so this is a good test
     # for vertices intersection handling
@@ -77,7 +78,6 @@ if __name__ == '__main__':
     plane_norm /= la.norm(plane_norm)
 
     plane = meshcut.Plane(plane_orig, plane_norm)
-    P = show(plane)
-    ##
+    show(plane)
     mlab.show()
     ##
