@@ -51,7 +51,8 @@ if __name__ == '__main__':
     plane_norm = (1, 0, 0)
 
     plane = meshcut.Plane(plane_orig, plane_norm)
-    P = show(plane, expected_n_contours=3)
+    show(plane, expected_n_contours=3)
+    mlab.show()
     ##
     # This will align the plane with some edges, so this is a good test
     # for vertices intersection handling
@@ -60,19 +61,19 @@ if __name__ == '__main__':
 
     plane = meshcut.Plane(plane_orig, plane_norm)
     show(plane, expected_n_contours=1)
-
+    mlab.show()
     ##
     plane_orig = (1, 0, 0)
     plane_norm = (1, 0, 0)
 
     plane = meshcut.Plane(plane_orig, plane_norm)
     show(plane, expected_n_contours=3)
+    mlab.show()
     ##
     plane_orig = (0.7, 0, 0)
     plane_norm = (0.2, 0.5, 0.3)
 
     plane = meshcut.Plane(plane_orig, plane_norm)
     show(plane, expected_n_contours=2)
-    ##
     mlab.show()
     ##
