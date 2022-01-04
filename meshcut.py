@@ -273,11 +273,19 @@ def cross_section_mesh(mesh, plane, dist_tol=1e-8):
                 mesh, tid, plane, dist_tol)
 
         if len(intersections) == 2:
+            lines = []
             for intersection in intersections:
                 p, T = _walk_polyline(tid, intersection, T, mesh, plane,
                                       dist_tol)
                 if len(p) > 1:
-                    P.append(np.array(p))
+                    lines.append(np.array(p))
+            if len(lines) == 2:
+                # This means that the mesh is non manifold and that we started
+                # from a triangle that is not on the boundary of the mesh.
+                # Therefore, we have two lines going in opposite directions
+                # that we should join
+                lines = [np.concatenate((lines[0][::-1], lines[1]), axis=0)]
+            P += lines
     return P
 
 

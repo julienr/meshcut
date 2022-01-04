@@ -36,6 +36,18 @@ def load_sphere():
     return meshcut.TriangleMesh(verts, faces)
 
 
+def load_non_manifold_1():
+    fname = os.path.join(DATA_DIR, 'non_manifold_1.stl')
+    m = stl.mesh.Mesh.from_file(fname)
+
+    # Flatten our vert array to Nx3 and generate corresponding faces array
+    verts = m.vectors.reshape(-1, 3)
+    faces = np.arange(len(verts)).reshape(-1, 3)
+
+    verts, faces = meshcut.merge_close_vertices(verts, faces)
+    return meshcut.TriangleMesh(verts, faces)
+
+
 def test_plane_aligned_with_edges():
     mesh = load_human()
     # This will align the plane with some edges, so this is a good test
@@ -177,6 +189,26 @@ def test_sphere():
     plane_orig = (0, 0.75, 0)
     plane_norm = (0, 1, 0)
     plane = meshcut.Plane(plane_orig, plane_norm)
+    p = meshcut.cross_section_mesh(mesh, plane)
+    assert len(p) == 1
+    assert len(p[0]) > 10
+
+
+def test_non_manifold_join_disjoint_lines():
+    """
+    Regression test for #20
+
+    On a non-manifold mesh, if the starting trial is not on the boundary,
+    we'll end up walking polylines in two directions. But instead of returning
+    those as two cuts, we should join them because they originate from the
+    same triangle
+    """
+    mesh = load_non_manifold_1()
+
+    plane_orig = (387.224, 232.544, 6.287)
+    plane_norm = (0, 1, 0)
+    plane = meshcut.Plane(plane_orig, plane_norm)
+
     p = meshcut.cross_section_mesh(mesh, plane)
     assert len(p) == 1
     assert len(p[0]) > 10
