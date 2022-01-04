@@ -168,6 +168,13 @@ def get_next_triangle(mesh, T, plane, intersection, dist_tol):
 
     We look for a triangle that is cut by the plane (2 intersections) as
     opposed to one that only touch the plane (1 vertex intersection)
+
+    Args:
+        mesh (TriangleMesh): The mesh to process
+        T (set[int]): set of already visited triangles id
+        plane (Plane): The plane to cut with
+        intersection (tuple): The intersection
+        dist_tol (float): distance tolerance
     """
     if intersection[0] == INTERSECT_EDGE:
         tris = mesh.triangles_for_edge(intersection[2])
@@ -207,6 +214,15 @@ def _walk_polyline(tid, intersect, T, mesh, plane, dist_tol):
     Given an intersection, walk through the mesh triangles, computing
     intersection with the cut plane for each visited triangle and adding
     those intersection to a polyline.
+
+    Args:
+        tid (int): triangle id to start from
+        intersect (tuple): Intersection to start walking from (this should
+            belong to the triangle `tid`).
+        T (set[int]): set of already visited triangles id
+        mesh (TriangleMesh): The mesh to process
+        plane (Plane): plane to cut with
+        dist_tol (float): distance tolerance
     """
     T = set(T)
     p = []
