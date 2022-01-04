@@ -171,7 +171,7 @@ def get_next_triangle(mesh, T, plane, intersection, dist_tol):
 
     Args:
         mesh (TriangleMesh): The mesh to process
-        T (set[int]): set of already visited triangles id
+        T (set[int]): set of unvisited triangles ids
         plane (Plane): The plane to cut with
         intersection (tuple): The intersection
         dist_tol (float): distance tolerance
@@ -219,7 +219,7 @@ def _walk_polyline(tid, intersect, T, mesh, plane, dist_tol):
         tid (int): triangle id to start from
         intersect (tuple): Intersection to start walking from (this should
             belong to the triangle `tid`).
-        T (set[int]): set of already visited triangles id
+        T (set[int]): set of unvisited triangles ids
         mesh (TriangleMesh): The mesh to process
         plane (Plane): plane to cut with
         dist_tol (float): distance tolerance
