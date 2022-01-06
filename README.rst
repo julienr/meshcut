@@ -2,10 +2,10 @@
 meshcut - Python utilities to slice 3D triangular meshes
 ========================================================
 
-.. image:: https://github.com/julienr/meshcut/actions/workflows/checks.yml/badge.svg?branch=master)
-   :target: https://travis-ci.org/julienr/meshcut/
+.. image:: https://github.com/julienr/meshcut/actions/workflows/checks.yml/badge.svg?branch=master
+   :target: https://github.com/julienr/meshcut/actions
 
-For now, this computes the planar cross-section of a 3D mesh.
+A python library to compute the planar cross-section of a 3D mesh.
 
 Given a 3D mesh and a cut plane, this computes a (set of) polyline(s) that
 results from cutting the mesh with the plane.
