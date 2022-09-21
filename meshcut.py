@@ -4,11 +4,12 @@ Functions to slice a mesh. For now, computes planar cross-section
 import numpy as np
 import numpy.linalg as la
 try:
-    import scipy.spatial.distance as spdist
+    from scipy.spatial import KDTree
     USE_SCIPY = True
 except ImportError:
     USE_SCIPY = False
 import collections
+
 
 # ---- Geometry datastructures
 
@@ -271,13 +272,15 @@ def cross_section_mesh(mesh, plane, dist_tol=1e-8):
 
         intersections = compute_triangle_plane_intersections(
                 mesh, tid, plane, dist_tol)
+    
 
         if len(intersections) == 2:
             lines = []
             for intersection in intersections:
                 p, T = _walk_polyline(tid, intersection, T, mesh, plane,
                                       dist_tol)
-                if len(p) > 1:
+
+                if len(p) > 1:      
                     lines.append(np.array(p))
             if len(lines) == 2:
                 # This means that the mesh is non manifold and that we started
@@ -331,19 +334,19 @@ def merge_close_vertices(verts, faces, close_epsilon=1e-5):
     """
     Will merge vertices that are closer than close_epsilon.
 
-    Warning, this has a O(n^2) memory usage because we compute the full
-    vert-to-vert distance matrix. If you have a large mesh, might want
-    to use some kind of spatial search structure like an octree or some fancy
-    hashing scheme
-
+    super fast and memory efficient KDTree from scipy:
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.KDTree.query_ball_point.html
+    fallback to naive implementation
+        
     Returns: new_verts, new_faces
     """
-    # Pairwise distance between verts
+    # find all verts closer than close_epsilon
     if USE_SCIPY:
-        D = spdist.cdist(verts, verts)
+        tree = KDTree(verts)
+        D = tree.query_ball_point(verts, close_epsilon, p=2.0, eps=0, workers=-1, return_sorted=None, return_length=False)
     else:
         D = np.sqrt(np.abs(pdist_squareformed_numpy(verts)))
-
+ 
     # Compute a mapping from old to new : for each input vert, store the index
     # of the new vert it will be merged into
     old2new = np.zeros(D.shape[0], dtype=np.int)
@@ -355,7 +358,11 @@ def merge_close_vertices(verts, faces, close_epsilon=1e-5):
             continue
         else:
             # The vertices that will be merged into this one
-            merged = np.flatnonzero(D[i, :] < close_epsilon)
+            if USE_SCIPY:
+                merged = D[i]
+            else:
+                merged = np.flatnonzero(D[i, :] < close_epsilon)
+                      
             old2new[merged] = len(new_verts)
             new_verts.append(verts[i])
             merged_verts[merged] = True
